@@ -38,9 +38,12 @@ def scrape_product_details_bmsmena(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
     
-    # Extract Product Name
+    # Extract Product Title
     name_tag = soup.find('h4')
-    product_name = name_tag.get_text(strip=True) if name_tag else "N/A"
+    product_title = name_tag.get_text(strip=True) if name_tag else "N/A"
+    
+    # Extract Product Model (set as N/A for now)
+    product_model = "N/A"
     
     # Extract Price
     price_tag = soup.find('span', id='js-product-price')
@@ -51,10 +54,13 @@ def scrape_product_details_bmsmena(url):
     image_url = "https:" + image_tag['data-zoom-image'] if image_tag and 'data-zoom-image' in image_tag.attrs else "N/A"
     
     return {
-        'Product Name': product_name,
-        'Price (JD)': product_price,
-        'Image URL': image_url,
-        'Product URL': url
+        'Title': product_title,
+        'Model': product_model,
+        'Brand': 'Samsung',  # Placeholder for now
+        'Category': 'N/A',  # Placeholder for now
+        'Price': product_price,
+        'Product URL': url,
+        'Image URL': image_url
     }
 
 # Main function to scrape multiple products and save them to a unified CSV file
@@ -77,7 +83,7 @@ def scrape_multiple_products_bmsmena(search_query, max_pages=5):
     df.to_csv(csv_filename, index=False)
     print(f'Scraped {len(all_products)} products and saved to {csv_filename}')
 
-def CrawlBMS(term,pages = 1):
-    search_query = term # Example search term
+def CrawlBMS(term, pages=1):
+    search_query = term  # Example search term
     max_pages = pages  # Set the maximum number of pages to scrape
     scrape_multiple_products_bmsmena(search_query, max_pages)

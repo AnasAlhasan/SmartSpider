@@ -6,7 +6,7 @@ from Spiders.Leaders_Spider import CrawlLeaders
 from Spiders.LGvision_Spider import CrawlLGvision
 
 def RunSpiders():
-    search_term = 'Beko Dishwasher'
+    search_term = 'tv'
     pages = 3
     # Create a list of functions to execute
     spiders = [
@@ -31,7 +31,7 @@ def RunSpiders():
                 print(f'{spider_name} generated an exception: {e}')
 
 '''def RunSpiders():
-    search_term = 'Air fryer'
+    search_term = ''
     pages = 1
     CrawlBMS(search_term,pages)
     CrawlLeaders(search_term,pages)

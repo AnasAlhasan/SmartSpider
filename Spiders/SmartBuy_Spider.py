@@ -50,15 +50,13 @@ def scrape_json_ld(url):
             
             # Extract product information from the JSON-LD structure
             product_info = {
-                'Product ID': json_data.get('productID', 'N/A'),
-                'Name': json_data.get('name', 'N/A'),
+                'Title': json_data.get('name', 'N/A'),
                 'Model': json_data.get('offers', [{}])[0].get('name', 'N/A'),
-                'Price (JOD)': json_data.get('offers', [{}])[0].get('price', 'N/A'),
                 'Brand': json_data.get('brand', {}).get('name', 'N/A'),
-                'SKU': json_data.get('sku', 'N/A'),
-                'URL': json_data.get('url', 'N/A'),
                 'Category': json_data.get('category', 'N/A'),
-                'Image': json_data.get('image', {}).get('url', 'N/A')
+                'Price': json_data.get('offers', [{}])[0].get('price', 'N/A'),
+                'Product URL': json_data.get('url', 'N/A'),
+                'Image URL': json_data.get('image', {}).get('url', 'N/A')
             }
             
             return product_info
@@ -94,7 +92,7 @@ def CrawlSmartBuy(term,pages = 1):
 
     products = scrape_multiple_products(search_url, max_pages)
 
-   # Save data to CSV
+    # Save data to CSV
     scraped_data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Scraped_Data'))  # Path to the Scraped_Data folder
     os.makedirs(scraped_data_dir, exist_ok=True)  # Create the folder if it doesn't exist
     csv_filename = os.path.join(scraped_data_dir, 'SmartBuyProducts.csv')  # Specify the new filename
@@ -102,4 +100,3 @@ def CrawlSmartBuy(term,pages = 1):
     df = pd.DataFrame(products)
     df.to_csv(csv_filename, index=False)  # Use the full path here
     print(f'Scraped {len(products)} products and saved to {csv_filename}')  # Update the message to reflect the new file name
-

@@ -15,7 +15,6 @@ def scrape_product_details_leaders(url):
     soup = BeautifulSoup(response.content, 'html.parser')
     
     # Extract title
-    #title_tag = soup.find('h1', class_='woocommerce-loop-product__title') or soup.find('h1', class_='product_title entry-title')
     title_tag = soup.find('h1', class_='product_title entry-title')
     title = title_tag.get_text(strip=True) if title_tag else "N/A"
     
@@ -37,11 +36,12 @@ def scrape_product_details_leaders(url):
     # Return product information
     return {
         'Title': title,
-        'Price (JOD)': price,
         'Model': model,
         'Brand': brand,
-        'Image URL': image_url,
-        'Product URL': url
+        'Category': 'N/A',  # Placeholder for now
+        'Price': price,
+        'Product URL': url,
+        'Image URL': image_url
     }
 
 # Function to scrape URLs of products from a search results page

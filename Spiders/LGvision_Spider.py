@@ -49,7 +49,16 @@ def scrape_product_details_newvision(url):
     price_tag = soup.find('p', class_='price pewc-main-price')
     if not price_tag:
         price_tag = soup.find('span', class_='woocommerce-Price-amount')
-    product_price = price_tag.get_text(strip=True) if price_tag else "N/A"
+    
+    if price_tag:
+        price_text = price_tag.get_text(strip=True)
+        if "Current price is:" in price_text:
+            # Extract the current price only
+            product_price = price_text.split("Current price is:")[-1].split('JOD')[0].strip()
+        else:
+            product_price = price_text
+    else:
+        product_price = "N/A"
     
     # Extract Product Category
     category_tag = soup.find('span', class_='posted_in')
@@ -62,13 +71,13 @@ def scrape_product_details_newvision(url):
     brand = 'LG'
     
     return {
-        'Product Title': product_title,
-        'Price (JOD)': product_price,
+        'Title': product_title,
         'Model': product_model,
-        'Category': product_category,
         'Brand': brand,
-        'Image URL': image_url,
-        'Product URL': url
+        'Category': product_category,
+        'Price': product_price,
+        'Product URL': url,
+        'Image URL': image_url
     }
 
 # Main function to scrape multiple products and save them to a unified CSV file

@@ -24,9 +24,12 @@ def scrape_product_details_diamondstar(url):
     ins_price = price_tag.find('ins').find('span', class_='woocommerce-Price-amount amount') if price_tag.find('ins') else None
     price = ins_price.get_text(strip=True) if ins_price else price_tag.find('span', class_='woocommerce-Price-amount amount').get_text(strip=True)
 
-    # Extract brand
-    brand_tag = soup.find('a', rel='tag')
-    brand = brand_tag.get_text(strip=True) if brand_tag else "N/A"
+    # Extract category (swapped with brand)
+    category_tag = soup.find('a', rel='tag')
+    category = category_tag.get_text(strip=True) if category_tag else "N/A"
+
+    # Extract brand from title (assuming the first word in the title is the brand)
+    brand = title.split()[0] if title else "N/A"
 
     # Extract image URL
     image_tag = soup.find('a', {'data-elementor-open-lightbox': 'no'})
@@ -35,10 +38,11 @@ def scrape_product_details_diamondstar(url):
     return {
         'Title': title,
         'Model': model,
-        'Price (JD)': price,
         'Brand': brand,
-        'Image URL': image_url,
-        'Product URL': url
+        'Category': category,
+        'Price': price,
+        'Product URL': url,
+        'Image URL': image_url
     }
 
 # Function to scrape product URLs from the search results page
@@ -76,12 +80,12 @@ def scrape_multiple_products_diamondstar(search_query, max_pages):
     return all_products
 
 # Main function to execute the scraping
-def CrawlDiamondStar(term,pages = 1):
+def CrawlDiamondStar(term, pages=1):
     search_query = term  # Change this to any desired search term
     max_pages = pages  # Number of pages to scrape
 
     products = scrape_multiple_products_diamondstar(search_query, max_pages)
-   # Save data to CSV, overwriting the existing file
+    # Save data to CSV, overwriting the existing file
     scraped_data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Scraped_Data'))  # Path to the Scraped_Data folder
     os.makedirs(scraped_data_dir, exist_ok=True)  # Create the folder if it doesn't exist
     output_file = os.path.join(scraped_data_dir, 'DiamondStarProducts.csv')  # Specify the new filename with path
@@ -89,4 +93,3 @@ def CrawlDiamondStar(term,pages = 1):
     df = pd.DataFrame(products)
     df.to_csv(output_file, index=False)  # Use the full path here
     print(f'Scraped {len(products)} products and saved to {output_file}')  # Update the message to reflect the new file name
-
