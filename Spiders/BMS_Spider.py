@@ -11,7 +11,6 @@ def get_product_urls_bmsmena(search_query, max_pages=5):
     
     for page in range(1, max_pages + 1):
         url = base_url + f'&page={page}'
-        print(f'Scraping URLs from page {page}: {url}')
         
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -20,7 +19,6 @@ def get_product_urls_bmsmena(search_query, max_pages=5):
         product_containers = soup.find_all('div', class_='product-collection__title')
         
         if not product_containers:
-            print("No products found on this page. Stopping pagination.")
             break  # Stop if no products are found
         
         for container in product_containers:
@@ -42,16 +40,27 @@ def scrape_product_details_bmsmena(url):
     name_tag = soup.find('h4')
     product_title = name_tag.get_text(strip=True) if name_tag else "N/A"
     
-    # Extract Product Model (set as N/A for now)
-    product_model = "N/A"
+    # Extract Product Model
+    if "|" in product_title:
+        product_model = product_title.split('|')[-1].strip()
+    else:
+        product_model = product_title.split()[0] if product_title else "N/A"
     
+    # Extract Price
+        
     # Extract Price
     price_tag = soup.find('span', id='js-product-price')
     product_price = price_tag.get_text(strip=True) if price_tag else "N/A"
+
+# Remove the currency " JD" to keep only the numeric value
+    if product_price != "N/A":
+        product_price = product_price.replace(" JD", "").replace(",", "")
+
     
     # Extract Image URL
     image_tag = soup.find('img', class_='main-image')
     image_url = "https:" + image_tag['data-zoom-image'] if image_tag and 'data-zoom-image' in image_tag.attrs else "N/A"
+    store = 'BMS'
     
     return {
         'Title': product_title,
@@ -59,8 +68,9 @@ def scrape_product_details_bmsmena(url):
         'Brand': 'Samsung',  # Placeholder for now
         'Category': 'N/A',  # Placeholder for now
         'Price': product_price,
+        'Image URL': image_url,
         'Product URL': url,
-        'Image URL': image_url
+        'Store': store
     }
 
 # Main function to scrape multiple products and save them to a unified CSV file
@@ -69,7 +79,6 @@ def scrape_multiple_products_bmsmena(search_query, max_pages=5):
     all_products = []
     
     for url in product_urls:
-        print(f'Scraping product details from: {url}')
         product_info = scrape_product_details_bmsmena(url)
         all_products.append(product_info)
         time.sleep(1)  # Pause to avoid overloading the server
@@ -81,7 +90,7 @@ def scrape_multiple_products_bmsmena(search_query, max_pages=5):
     
     df = pd.DataFrame(all_products)
     df.to_csv(csv_filename, index=False)
-    print(f'Scraped {len(all_products)} products and saved to {csv_filename}')
+
 
 def CrawlBMS(term, pages=1):
     search_query = term  # Example search term

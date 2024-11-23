@@ -11,7 +11,6 @@ def get_product_urls_newvision(search_query, max_pages=5):
     
     for page in range(1, max_pages + 1):
         url = base_url + f'&paged={page}'
-        print(f'Scraping URLs from page {page}: {url}')
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         
@@ -19,7 +18,6 @@ def get_product_urls_newvision(search_query, max_pages=5):
         product_containers = soup.find_all('h3', class_='wd-entities-title')
         
         if not product_containers:
-            print("No products found on this page. Stopping pagination.")
             break  # Stop if no products are found
         
         for container in product_containers:
@@ -50,15 +48,16 @@ def scrape_product_details_newvision(url):
     if not price_tag:
         price_tag = soup.find('span', class_='woocommerce-Price-amount')
     
-    if price_tag:
-        price_text = price_tag.get_text(strip=True)
-        if "Current price is:" in price_text:
-            # Extract the current price only
-            product_price = price_text.split("Current price is:")[-1].split('JOD')[0].strip()
-        else:
-            product_price = price_text
-    else:
-        product_price = "N/A"
+    price_text = price_tag.get_text(strip=True) if price_tag else "N/A"
+    
+    # Process Price
+    if "Current price" in price_text:  # Handle discount case
+        current_price = price_text.split("Current price is:")[-1]
+    else:  # No discount case
+        current_price = price_text
+    
+    # Remove JOD and unwanted characters
+    current_price = ''.join(filter(str.isdigit, current_price))  # Keep only numeric characters
     
     # Extract Product Category
     category_tag = soup.find('span', class_='posted_in')
@@ -69,16 +68,19 @@ def scrape_product_details_newvision(url):
     image_url = image_tag['href'] if image_tag and 'href' in image_tag.attrs else "N/A"
     
     brand = 'LG'
+    store = 'LG vision'
     
     return {
         'Title': product_title,
         'Model': product_model,
         'Brand': brand,
         'Category': product_category,
-        'Price': product_price,
+        'Price': current_price,
+        'Image URL': image_url,
         'Product URL': url,
-        'Image URL': image_url
+        'Store': store
     }
+
 
 # Main function to scrape multiple products and save them to a unified CSV file
 def scrape_multiple_products_newvision(search_query, max_pages=5):
@@ -86,7 +88,6 @@ def scrape_multiple_products_newvision(search_query, max_pages=5):
     all_products = []
     
     for url in product_urls:
-        print(f'Scraping product details from: {url}')
         product_info = scrape_product_details_newvision(url)
         all_products.append(product_info)
         time.sleep(1)  # Pause to avoid overloading the server
@@ -97,7 +98,6 @@ def scrape_multiple_products_newvision(search_query, max_pages=5):
     csv_filename = os.path.join(scraped_data_dir, 'LGVisionProducts.csv')
     df = pd.DataFrame(all_products)
     df.to_csv(csv_filename, index=False)
-    print(f'Scraped {len(all_products)} products and saved to {csv_filename}')
 
 def CrawlLGvision(term, pages=1):
     search_query = term  # Example search term

@@ -15,6 +15,7 @@ def scrape_product_details_leaders(url):
     soup = BeautifulSoup(response.content, 'html.parser')
     
     # Extract title
+    #title_tag = soup.find('h1', class_='woocommerce-loop-product__title') or soup.find('h1', class_='product_title entry-title')
     title_tag = soup.find('h1', class_='product_title entry-title')
     title = title_tag.get_text(strip=True) if title_tag else "N/A"
     
@@ -38,10 +39,10 @@ def scrape_product_details_leaders(url):
         'Title': title,
         'Model': model,
         'Brand': brand,
-        'Category': 'N/A',  # Placeholder for now
         'Price': price,
+        'Image URL': image_url,
         'Product URL': url,
-        'Image URL': image_url
+        'Store': 'Leaders'
     }
 
 # Function to scrape URLs of products from a search results page
@@ -65,11 +66,9 @@ def scrape_multiple_products_leaders(search_term, max_pages):
     
     for page in range(1, max_pages + 1):
         search_url = base_url if page == 1 else f'https://leaders.jo/en/page/{page}/?s={search_term}&post_type=product&dgwt_wcas=1&lang=en'
-        print(f'Scraping page {page}: {search_url}')
         
         product_urls = scrape_product_urls_leaders(search_url)
         for url in product_urls:
-            print(f'Scraping product: {url}')
             product_info = scrape_product_details_leaders(url)
             all_products.append(product_info)
     
@@ -80,7 +79,7 @@ def scrape_multiple_products_leaders(search_term, max_pages):
 
     df = pd.DataFrame(all_products)
     df.to_csv(csv_filename, mode='w', index=False, header=True)  # Use the full path here
-    print(f'Scraped {len(all_products)} products and saved to {csv_filename}')
+
 
 
 def CrawlLeaders(term, pages = 1):

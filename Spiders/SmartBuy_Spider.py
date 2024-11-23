@@ -18,7 +18,6 @@ def scrape_product_urls(search_url, max_pages):
         else:
             url = f"{search_url}&page={page}"  # Subsequent page URLs
         
-        print(f"Scraping search results page {page}: {url}")
         response = requests.get(url, headers=headers)
         soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -42,6 +41,7 @@ def scrape_json_ld(url):
 
     # Find the JSON-LD script in the page
     json_ld_tag = soup.find('script', type='application/ld+json')
+    store = 'Smart Buy'
 
     if json_ld_tag:
         try:
@@ -55,8 +55,9 @@ def scrape_json_ld(url):
                 'Brand': json_data.get('brand', {}).get('name', 'N/A'),
                 'Category': json_data.get('category', 'N/A'),
                 'Price': json_data.get('offers', [{}])[0].get('price', 'N/A'),
+                'Image URL': json_data.get('image', {}).get('url', 'N/A'),
                 'Product URL': json_data.get('url', 'N/A'),
-                'Image URL': json_data.get('image', {}).get('url', 'N/A')
+                'Store': store
             }
             
             return product_info
@@ -74,11 +75,9 @@ def scrape_multiple_products(search_url, max_pages):
     # Step 1: Scrape all product URLs from the search results pages
     product_urls = scrape_product_urls(search_url, max_pages)
     
-    print(f"Found {len(product_urls)} product URLs to scrape.")
 
     # Step 2: Scrape each product page for JSON-LD data
     for url in product_urls:
-        print(f"Scraping product page: {url}")
         product_info = scrape_json_ld(url)
         if product_info:
             all_products.append(product_info)
@@ -92,11 +91,11 @@ def CrawlSmartBuy(term,pages = 1):
 
     products = scrape_multiple_products(search_url, max_pages)
 
-    # Save data to CSV
+   # Save data to CSV
     scraped_data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Scraped_Data'))  # Path to the Scraped_Data folder
     os.makedirs(scraped_data_dir, exist_ok=True)  # Create the folder if it doesn't exist
     csv_filename = os.path.join(scraped_data_dir, 'SmartBuyProducts.csv')  # Specify the new filename
 
     df = pd.DataFrame(products)
     df.to_csv(csv_filename, index=False)  # Use the full path here
-    print(f'Scraped {len(products)} products and saved to {csv_filename}')  # Update the message to reflect the new file name
+

@@ -6,7 +6,7 @@ from Spiders.Leaders_Spider import CrawlLeaders
 from Spiders.LGvision_Spider import CrawlLGvision
 
 def RunSpiders():
-    search_term = 'tv'
+    search_term = input('Enter the product: ')
     pages = 3
     # Create a list of functions to execute
     spiders = [
