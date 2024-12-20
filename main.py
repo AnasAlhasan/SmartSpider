@@ -4,6 +4,7 @@ from data_processing import process_and_save
 
 
 if __name__ == '__main__':
-    RunSpiders()
-    process_and_save()
+    x = input()
+    RunSpiders(x)
+    process_and_save(x)
     

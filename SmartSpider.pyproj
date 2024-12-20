@@ -11,6 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>SmartSpider</Name>
     <RootNamespace>SmartSpider</RootNamespace>
+    <SuppressConfigureTestFrameworkPrompt>true</SuppressConfigureTestFrameworkPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,6 +22,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="app.py" />
+    <Compile Include="database_setup.py" />
     <Compile Include="data_processing.py" />
     <Compile Include="main.py" />
     <Compile Include="run_spiders.py" />
@@ -30,6 +33,7 @@
     <Compile Include="Spiders\Leaders_Spider.py" />
     <Compile Include="Spiders\LGvision_Spider.py" />
     <Compile Include="Spiders\SmartBuy_Spider.py" />
+    <Compile Include="test_api.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Spiders\" />
