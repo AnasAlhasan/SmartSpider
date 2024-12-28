@@ -19,6 +19,8 @@ class Product(db.Model):
     image_url = db.Column(db.String(500))
     store = db.Column(db.String(100))
     search_query = db.Column(db.String(255))  # New column for storing search query
+    saved = db.Column(db.Boolean, default=False)  # Flag for saved products
+    timestamp = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())  # Timestamp for updates
 
 if __name__ == '__main__':
     with app.app_context():
